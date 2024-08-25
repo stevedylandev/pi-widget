@@ -10,12 +10,18 @@ import (
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
 )
 
 type SystemStats struct {
 	CPUUsage    float64 `json:"cpuUsage"`
-	MemoryUsage float64 `json:"memoryUsage"`
+	MemoryUsed  uint64  `json:"memoryUsed"`
+	MemoryTotal uint64  `json:"memoryTotal"`
+	OS          string  `json:"os"`
+	Kernel      string  `json:"kernel"`
+	Uptime      string  `json:"uptime"`
+	CPUModel    string  `json:"cpuModel"`
 }
 
 type IPFSRepoStats struct {
@@ -36,6 +42,7 @@ type BandwidthStats struct {
 type CombinedStats struct {
 	IPFSRepoStats
 	BandwidthStats
+	SystemStats
 }
 
 func main() {
@@ -97,9 +104,15 @@ func getIpfsStats() (CombinedStats, error) {
 		return CombinedStats{}, err
 	}
 
+	sysStats, err := getSystemStats()
+	if err != nil {
+		return CombinedStats{}, err
+	}
+
 	return CombinedStats{
 		IPFSRepoStats:  repoStats,
 		BandwidthStats: bwStats,
+		SystemStats:    sysStats,
 	}, nil
 }
 
@@ -168,8 +181,31 @@ func getSystemStats() (SystemStats, error) {
 		return SystemStats{}, err
 	}
 
+	hostInfo, err := host.Info()
+	if err != nil {
+		return SystemStats{}, err
+	}
+
 	return SystemStats{
 		CPUUsage:    c[0],
-		MemoryUsage: v.UsedPercent,
+		MemoryUsed:  v.Used,
+		MemoryTotal: v.Total,
+		OS:          "Debian GNU/Linux 12 (bookworm) aarch64",
+		Kernel:      hostInfo.KernelVersion,
+		Uptime:      (time.Duration(hostInfo.Uptime) * time.Second).String(),
+		CPUModel:    "BCM2835 (4) @ 1.800GHz",
 	}, nil
+}
+
+func formatBytes(bytes int64) string {
+	const unit = 1024
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
