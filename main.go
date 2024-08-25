@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -186,13 +187,15 @@ func getSystemStats() (SystemStats, error) {
 		return SystemStats{}, err
 	}
 
+	uptime := time.Duration(hostInfo.Uptime) * time.Second
+
 	return SystemStats{
 		CPUUsage:    c[0],
 		MemoryUsed:  v.Used,
 		MemoryTotal: v.Total,
 		OS:          "Debian GNU/Linux 12 (bookworm) aarch64",
 		Kernel:      hostInfo.KernelVersion,
-		Uptime:      (time.Duration(hostInfo.Uptime) * time.Second).String(),
+		Uptime:      formatUptime(uptime),
 		CPUModel:    "BCM2835 (4) @ 1.800GHz",
 	}, nil
 }
@@ -208,4 +211,27 @@ func formatBytes(bytes int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
+}
+
+func formatUptime(uptime time.Duration) string {
+	days := int(uptime.Hours() / 24)
+	hours := int(uptime.Hours()) % 24
+	minutes := int(uptime.Minutes()) % 60
+	seconds := int(uptime.Seconds()) % 60
+
+	var parts []string
+	if days > 0 {
+		parts = append(parts, fmt.Sprintf("%dd", days))
+	}
+	if hours > 0 {
+		parts = append(parts, fmt.Sprintf("%dh", hours))
+	}
+	if minutes > 0 {
+		parts = append(parts, fmt.Sprintf("%dm", minutes))
+	}
+	if seconds > 0 || len(parts) == 0 {
+		parts = append(parts, fmt.Sprintf("%ds", seconds))
+	}
+
+	return strings.Join(parts, " ")
 }
