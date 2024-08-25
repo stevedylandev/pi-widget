@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Steve's Pi</title>
+    <meta charset="utf-8" />
+    <meta
+      name="description"
+      content="A peek into Steve's Raspberry Pi and the services it runs"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Steve's Pi" />
+    <meta
+      property="og:description"
+      content="A peek into Steve's Raspberry Pi and the services it runs"
+    />
+    <meta property="og:url" content="https://pi.stevedylan.dev" />
+    <meta property="og:site_name" content="Steve's Pi" />
+    <meta
+      property="og:image"
+      content="https://stevedylan.dev/social-card.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <link rel="icon" href="https://stevedylan.dev/favicon.ico" sizes="any" />
+    <link
+      rel="icon"
+      href="https://stevedylan.dev/icon.svg"
+      type="image/svg+xml"
+    />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <style>
+      @font-face {
+          font-family: 'CommitMono';
+          src: url('https://stevedylan.dev/CommitMono-400-Regular.otf') format('opentype'),
+          font-weight: normal;
+          font-style: normal;
+      }
+         html {
+             padding: 0;
+             margin: 0 1rem 0 1rem;
+             box-sizing: border-box;
+             background: #121212;
+             color: #C1C1C1;
+             font-family: 'CommitMono', sans-serif;
+         }
+         body {
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             flex-direction: column;
+             min-height: 90vh;
+             max-width: 500px;
+             margin: auto;
+         }
+         .stats-container {
+         	display: flex;
+          	flex-direction: column;
+           	justify-content: flex-start;
+         }
+         .ipfs-div {
+         	display: flex;
+             justify-content: flex-start;
+             align-items: center;
+          	gap: 0.5rem;
+         }
+         p {
+         	padding: 0;
+          	margin: 0;
+         }
+         a {
+             color:#C1C1C1;
+         }
+    </style>
+  </head>
+  <body>
+    <div class="stats-container">
+      <h1>Steve's Pi</h1>
+      <p>
+        Welcome to a live feed of my Raspberry Pi! It sits on my desk and runs
+        multiple small services such as
+        <a href="https://ipfs.io" target="_blank">IPFS</a> and
+        <a href="https://radicle.xyz" target="_blank">Radicle</a>.
+      </p>
+      <div class="ipfs-div">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 32 32"
+        >
+          <path
+            fill="#888888"
+            d="m28.504 8.136l-12-7a1 1 0 0 0-1.008 0l-12 7A1 1 0 0 0 3 9v14a1 1 0 0 0 .496.864l12 7a1 1 0 0 0 1.008 0l12-7A1 1 0 0 0 29 23V9a1 1 0 0 0-.496-.864M16 3.158L26.016 9L16 14.842L5.984 9ZM5 10.74l10 5.833V28.26L5 22.426Zm12 17.52V16.574l10-5.833v11.685Z"
+          />
+        </svg>
+        <h3>IPFS Node</h3>
+      </div>
+      <p>RepoSize: <span id="repoSize">-</span></p>
+      <p>StorageMax: <span id="storageMax">-</span></p>
+      <p>Objects: <span id="objects">-</span></p>
+      <p>Bandwidth In: <span id="rateIn">-</span></p>
+      <p>Bandwidth Out: <span id="rateOut">-</span></p>
+      <p>Total Data In: <span id="totalIn">-</span></p>
+      <p>Total Data Out: <span id="totalOut">-</span></p>
+    </div>
+    <script>
+      function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return "0 Bytes";
+
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return (
+          parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i]
+        );
+      }
+
+      function formatBitrate(bits) {
+        if (bits < 1000) {
+          return bits.toFixed(2) + " bps";
+        } else if (bits < 1000000) {
+          return (bits / 1000).toFixed(2) + " Kbps";
+        } else {
+          return (bits / 1000000).toFixed(2) + " Mbps";
+        }
+      }
+
+      const evtSource = new EventSource("/events");
+
+      evtSource.onopen = function (event) {
+        console.log("SSE connection opened");
+      };
+
+      evtSource.onerror = function (event) {
+        console.error("SSE connection error:", event);
+      };
+
+      evtSource.onmessage = function (event) {
+        console.log("Received data:", event.data);
+        try {
+          const data = JSON.parse(event.data);
+          document.getElementById("repoSize").textContent = formatBytes(
+            data.RepoSize,
+          );
+          document.getElementById("storageMax").textContent = formatBytes(
+            data.StorageMax,
+          );
+          document.getElementById("objects").textContent =
+            data.NumObjects.toLocaleString();
+          document.getElementById("rateIn").textContent = formatBitrate(
+            data.RateIn,
+          );
+          document.getElementById("rateOut").textContent = formatBitrate(
+            data.RateOut,
+          );
+          document.getElementById("totalIn").textContent = formatBytes(
+            data.TotalIn,
+          );
+          document.getElementById("totalOut").textContent = formatBytes(
+            data.TotalOut,
+          );
+        } catch (error) {
+          console.error("Error parsing or updating data:", error);
+        }
+      };
+    </script>
+  </body>
+</html>
