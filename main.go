@@ -194,7 +194,7 @@ func getSystemStats() (SystemStats, error) {
 		MemoryTotal: v.Total,
 		OS:          "Debian GNU/Linux 12 (bookworm) aarch64",
 		Kernel:      hostInfo.KernelVersion,
-		Uptime:      formatUptime(uptime),
+		Uptime:      FormatUptime(uptime),
 		CPUModel:    "BCM2835 (4) @ 1.800GHz",
 	}, nil
 }

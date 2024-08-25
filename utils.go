@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func formatBytes(bytes int64) string {
+func FormatBytes(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {
 		return fmt.Sprintf("%d B", bytes)
@@ -19,7 +19,7 @@ func formatBytes(bytes int64) string {
 	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-func formatUptime(uptime time.Duration) string {
+func FormatUptime(uptime time.Duration) string {
 	days := int(uptime.Hours() / 24)
 	hours := int(uptime.Hours()) % 24
 	minutes := int(uptime.Minutes()) % 60
