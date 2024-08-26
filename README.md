@@ -45,4 +45,4 @@ systemctl --user start pi-widget
 loginctl enable-linger $USER
 ```
 
-With the daemon running out of port `4321` you can setup a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/)pointing to `http://localhost:4321` and have a working site with your stats!
+With the daemon running out of port `4321` you can setup a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/) pointing to `http://localhost:4321` and have a working site with your stats!
