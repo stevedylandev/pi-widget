@@ -1,7 +1,7 @@
 # Pi Widget
 
 <p align="center">
-  <img src="https://dweb.mypinata.cloud/ipfs/QmXL9vahr78uxmRQ4LNEFB7k2rQRP8wgYg4jcvZgdVfBPz?img-format=webp" alt="Alt text" width="200" height="auto" style="border-radius:10px;">
+  <img src="https://dweb.mypinata.cloud/ipfs/QmXL9vahr78uxmRQ4LNEFB7k2rQRP8wgYg4jcvZgdVfBPz?img-format=webp" alt="Alt text" width="200" height="auto">
 </p>
 
 This little Golang server can be used as a starting point to display your Raspberry Pi stats or any other information you want to display via the web. For my case it also shares information about my [IPFS](https://ipfs.io) node.
