@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -48,8 +52,31 @@ type CombinedStats struct {
 func main() {
 	http.HandleFunc("/", serveHTML)
 	http.HandleFunc("/events", handleSSE)
-	fmt.Println("Server is running on http://localhost:4321")
-	log.Fatal(http.ListenAndServe(":4321", nil))
+
+	server := &http.Server{Addr: ":4321"}
+
+	go func() {
+		fmt.Println("Server is running on http://localhost:4321")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server error: %v", err)
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+	<-stop
+
+	fmt.Println("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("Error during server shutdown: %v", err)
+	}
+
+	fmt.Println("Server stopped")
 }
 
 //go:embed index.html
