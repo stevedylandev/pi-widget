@@ -4,7 +4,7 @@
   <img src="https://dweb.mypinata.cloud/ipfs/QmXL9vahr78uxmRQ4LNEFB7k2rQRP8wgYg4jcvZgdVfBPz?img-format=webp" alt="Alt text" width="200" height="auto" style="border-radius:10px;">
 </p>
 
-This little Golang server can be used as a starting point to display your Raspberry Pi stats or any other information you want to display. For my case it also shares information about my [IPFS](https://ipfs.io) node.
+This little Golang server can be used as a starting point to display your Raspberry Pi stats or any other information you want to display via the web. For my case it also shares information about my [IPFS](https://ipfs.io) node.
 
 It uses some simple functions to get the data and then sends it through a server-sides events endpoint called  `/events`. There’s a separate `index.html` file that handles the data and renders it on the page. For ease or editing I have made this file embedded so it will be included during the build process.
 
