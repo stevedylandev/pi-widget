@@ -112,7 +112,6 @@
         <h3>IPFS Node</h3>
       </div>
       <p>RepoSize: <span id="repoSize">-</span></p>
-      <p>StorageMax: <span id="storageMax">-</span></p>
       <p>Objects: <span id="objects">-</span></p>
       <p>Bandwidth In: <span id="rateIn">-</span></p>
       <p>Bandwidth Out: <span id="rateOut">-</span></p>
@@ -196,9 +195,6 @@
           // IPFS
           document.getElementById("repoSize").textContent = formatBytes(
             data.RepoSize,
-          );
-          document.getElementById("storageMax").textContent = formatBytes(
-            data.StorageMax,
           );
           document.getElementById("objects").textContent =
             data.NumObjects.toLocaleString();
