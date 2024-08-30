@@ -28,6 +28,11 @@ func getStats() (CombinedStats, error) {
 		return CombinedStats{}, err
 	}
 
+	radicleRepoStats, err := getRadicleRepos()
+	if err != nil {
+		return CombinedStats{}, err
+	}
+
 	sysStats, err := getSystemStats()
 	if err != nil {
 		return CombinedStats{}, err
@@ -38,6 +43,7 @@ func getStats() (CombinedStats, error) {
 		BandwidthStats: bwStats,
 		SystemStats:    sysStats,
 		RadNodeInfo:    radicleNodeStats,
+		RadNodeRepos:   radicleRepoStats,
 	}, nil
 }
 
@@ -133,6 +139,33 @@ func getRadicleStats() (RadNodeInfo, error) {
 	}
 
 	return simplifiedStats, nil
+}
+
+func getRadicleRepos() (RadNodeRepos, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "http://127.0.0.1:8888/api/v1/stats", nil)
+	if err != nil {
+		return RadNodeRepos{}, fmt.Errorf("error creating request: %v", err)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return RadNodeRepos{}, fmt.Errorf("error fetching Rad Node Stats: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return RadNodeRepos{}, fmt.Errorf("error reading response body: %v", err)
+	}
+
+	var stats RadNodeRepos
+	err = json.Unmarshal(body, &stats)
+	if err != nil {
+		return RadNodeRepos{}, fmt.Errorf("error unmarshaling JSON: %v", err)
+	}
+
+	return stats, nil
 }
 
 func getSystemStats() (SystemStats, error) {

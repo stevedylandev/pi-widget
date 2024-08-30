@@ -125,6 +125,7 @@
         <p>ID: <span class="truncate" id="radId">-</span></p>
         <p>Agent: <span id="radAgent">-</span></p>
         <p>Status: <span id="radStatus">-</span></p>
+        <p>Repos: <span id="radRepos">-</span></p>
         <p>Seeding Policy: <span id="radPolicy">-</span></p>
       </div>
       <div class="system-info">
@@ -215,6 +216,7 @@
           document.getElementById("radAgent").textContent = data.agent;
           document.getElementById("radStatus").textContent = data.state;
           document.getElementById("radPolicy").textContent = data.config.seedingPolicy.default;
+          document.getElementById("radRepos").textContent = data.repos.total.toString()
 
           // System
           document.getElementById("os").textContent = data.os;

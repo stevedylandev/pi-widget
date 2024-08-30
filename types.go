@@ -11,6 +11,12 @@ type RadNodeInfo struct {
 	} `json:"config"`
 }
 
+type RadNodeRepos struct {
+	Repos struct {
+		Total int `json:"total"`
+	} `json:"repos"`
+}
+
 type SystemStats struct {
 	CPUUsage    float64 `json:"cpuUsage"`
 	MemoryUsed  uint64  `json:"memoryUsed"`
@@ -41,4 +47,5 @@ type CombinedStats struct {
 	BandwidthStats
 	SystemStats
 	RadNodeInfo
+	RadNodeRepos
 }
